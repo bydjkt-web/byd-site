@@ -1,1 +1,80 @@
+name: Extract ZIP upload
 
+# Cara pakai: upload file .zip ke folder "upload/" di repository ini
+# (GitHub > folder upload > Add file > Upload files). Workflow ini otomatis
+# mengekstrak isinya ke root repository, menghapus zip-nya, lalu commit.
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'upload/*.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: extract-zip
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract zip ke root repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          zips=(upload/*.zip)
+          if [ ${#zips[@]} -eq 0 ]; then
+            echo "Tidak ada file .zip di folder upload/, selesai."
+            exit 0
+          fi
+          for z in "${zips[@]}"; do
+            echo "== Memproses: $z"
+            work=$(mktemp -d)
+            unzip -q -o "$z" -d "$work"
+            rm -rf "$work/__MACOSX"
+            find "$work" -name '.DS_Store' -delete
+            if find "$work" -type l | grep -q .; then
+              echo "Zip berisi symlink, ditolak demi keamanan."
+              exit 1
+            fi
+            src="$work"
+            if [ "$(find "$work" -mindepth 1 -maxdepth 1 | wc -l)" -eq 1 ] && [ -d "$(find "$work" -mindepth 1 -maxdepth 1)" ]; then
+              src="$(find "$work" -mindepth 1 -maxdepth 1)"
+              echo "Zip berisi satu folder pembungkus, isinya dipakai sebagai root."
+            fi
+            excludes=(--anchored --exclude='./.git' --exclude='./.github' --exclude='./upload')
+            if [ -f .extract-ignore ]; then
+              while IFS= read -r line || [ -n "$line" ]; do
+                line="${line%%#*}"
+                line="$(echo "$line" | xargs)"
+                line="${line#./}"
+                line="${line#/}"
+                if [ -n "$line" ]; then excludes+=(--exclude="./$line"); fi
+              done < .extract-ignore
+            fi
+            tar -C "$src" -cf - "${excludes[@]}" . | tar -xf - --no-same-owner
+            rm -rf "$work"
+            git rm -q -f -- "$z"
+          done
+
+      - name: Commit hasil ekstrak
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Tidak ada perubahan untuk di-commit."
+            exit 0
+          fi
+          git commit -m "Extract zip dari folder upload"
+          git push origin HEAD
