@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Placeholder. Buat ulang dengan: node tools/build-sitemap.js https://domain-anda.com -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://GANTI-DOMAIN.com/</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/model.html</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/promo.html</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/delivery.html</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/testimoni.html</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/artikel.html</loc></url>
+  <url><loc>https://GANTI-DOMAIN.com/kontak.html</loc></url>
+</urlset>

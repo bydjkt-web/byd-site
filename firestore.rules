@@ -1,0 +1,18 @@
+rules_version = '2';
+
+// Salin seluruh isi file ini ke: Firebase Console > Firestore Database > Rules > Publish
+// Ganti GANTI_DENGAN_UID_ADMIN dengan UID akun admin (Authentication > Users > kolom "User UID").
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'GANTI_DENGAN_UID_ADMIN';
+    }
+
+    // Semua orang boleh membaca (website publik), hanya admin yang boleh mengubah.
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

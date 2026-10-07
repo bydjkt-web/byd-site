@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+# Ganti dengan domain asli, lalu jalankan: node tools/build-sitemap.js https://domain-anda.com
+Sitemap: https://GANTI-DOMAIN.com/sitemap.xml

@@ -1,0 +1,8 @@
+# File/folder yang TIDAK ditimpa saat zip diekstrak (path dari root repository, satu per baris).
+# Supaya konfigurasi Firebase dan domain Anda tidak terhapus saat upload versi baru.
+# Folder .github, .git dan upload selalu dilindungi otomatis.
+js/firebase-config.js
+firestore.rules
+CNAME
+robots.txt
+sitemap.xml
